@@ -1,0 +1,12 @@
+# Model weights
+*.pt
+*.pth
+
+# Dataset folders
+data/
+yolo_dataset/
+
+# API keys and sensitive info
+*.env
+__pycache__/
+*.pyc
