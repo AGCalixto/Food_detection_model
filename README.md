@@ -89,7 +89,7 @@ food-recognition/
 ├── nutrition_data.json # USDA nutritional mappings
 ├── Model_training.ipynb # Data preprocessing and analysis, Food-101 to YOLO conversion, API integration, etc.
 ├── Model_training_command.py # Command for Model training
-├── Test_Results_Figures.zip # Results of the model testing with figures
+├── Figures/ # Results of the model testing with figures
 ├── yolo11/8n.pt # YOLO code
 
 ---
