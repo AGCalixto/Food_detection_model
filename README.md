@@ -1,6 +1,6 @@
 # Food Recognition and Calorie Estimation System
 
-End-to-end deep learning pipeline for automated food detection, classification, and nutritional analysis using YOLOv8 and EfficientNet.
+Deep learning pipeline for detecting food items in images, classifying them into 101 categories, and estimating their nutritional values (calories, protein, etc.) using YOLOv8, EfficientNet, and the USDA FoodData API.
 
 ![Workflow Diagram](Figures/workflow.png)
 
