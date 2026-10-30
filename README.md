@@ -309,7 +309,7 @@ def get_food_nutrition_optimized(food_name: str, cache_ttl: int = 86400) -> dict
 
 ---
 
-## Author 
+## Author
 Dennis Alejandro Guerra Calix
 University of Europe for Applied Sciences
 Potsdam, Germany
