@@ -9,14 +9,14 @@ Deep learning pipeline for detecting food items in images, classifying them into
 ## Table of Contents
 - [Key Features](#key-features)
 - [Technical Specifications](#technical-specifications)
-- [System Architecture & Data Flow]
+- [System Architecture & Data Flow](#system-architecture--data-flow)
 - [Dataset](#dataset)
 - [Project Structure](#project-structure)
 - [Methodology](#methodology)
-- [Backend Infrastructure]
-- - PostgreSQL Database Layer
-- - Redis In-Memory Caching
-- - Automated Testing with Pytest
+- [Backend Infrastructure](#backend-infrastructure)
+- - [PostgreSQL Database Layer](#postgresql-database-layer)
+- - [Redis In-Memory Caching](#redis-in-memory-caching)
+- - [Automated Testing with Pytest](#automated-testing-with-pytest)
 - [Results](#results)
 - [Installation & Setup](#installation)
 - [Usage](#usage)
@@ -72,7 +72,7 @@ Deep learning pipeline for detecting food items in images, classifying them into
 
 ---
 
-# System Architecture & Data Flow
+## System Architecture & Data Flow
 
 [ Input Image ] ---> [ YOLOv8 Detection ] ---> [ EfficientNet Classification ]
                                                           |
