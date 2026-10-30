@@ -1,26 +1,16 @@
-import psycopg2  # Import PostgreSQL adapter for Python
-from psycopg2.extras import RealDictCursor  # Allows fetching DB rows as native Python dictionaries
+import psycopg2
+from config import DB_CONFIG
+# Responsibility: Handles schema creation, reads, and writes to PostgreSQL.
 
-# Connection configuration details for the  PostgreSQL database instance
-DB_CONFIG = {
-    "dbname": "food_db",        # Name of the database created in Postgres
-    "user": "postgres",         # Database master user name
-    "password": "contrapass", # Database password
-    "host": "localhost",        # Host server running PostgreSQL
-    "port": "5432"              # Default PostgreSQL port
-}
-
-def get_connection():
-    """Establishes and returns an active connection object to PostgreSQL."""
+def get_db_connection():
+    """Establishes and returns an active connection to PostgreSQL."""
     return psycopg2.connect(**DB_CONFIG)
 
 def initialize_db():
-    """Creates the tables for storing cached nutrition and image predictions if they don't exist."""
-    # Context manager automatically handles connection open/close
-    with get_connection() as conn:
-        # Cursor handles execution of SQL statements; RealDictCursor formats returns as dicts
+    """Initializes schema tables for nutritional records and model detection logs."""
+    with get_db_connection() as conn:
         with conn.cursor() as cursor:
-            # Create a table to permanently cache USDA nutritional data
+            # Table 1: Cached nutritional records from USDA API
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS food_nutrition (
                     id SERIAL PRIMARY KEY,
@@ -32,7 +22,7 @@ def initialize_db():
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
             """)
-            # Create a table to track model inference history
+            # Table 2: Model inference history logs
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS inference_logs (
                     id SERIAL PRIMARY KEY,
@@ -42,24 +32,48 @@ def initialize_db():
                     detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
             """)
-            # Commit the schema changes to the database
             conn.commit()
 
-def save_detection(image_path: str, predicted_class: str, confidence: float):
-    """Inserts a new model detection record into the inference_logs table."""
-    with get_connection() as conn:
+def fetch_from_postgres(food_name: str) -> dict:
+    """Tier 2 Lookup: Retrieve nutritional data from PostgreSQL."""
+    clean_name = food_name.lower().strip()
+    with get_db_connection() as conn:
         with conn.cursor() as cursor:
-            # Parameterized query prevents SQL injection attacks
+            cursor.execute(
+                "SELECT food_name, calories, protein, fat, carbs FROM food_nutrition WHERE food_name = %s;",
+                (clean_name,)
+            )
+            row = cursor.fetchone()
+            if row:
+                return {
+                    "food_name": row[0],
+                    "calories": row[1],
+                    "protein": row[2],
+                    "fat": row[3],
+                    "carbs": row[4]
+                }
+    return None
+
+def save_to_postgres(nutrition_data: dict):
+    """Persist newly fetched USDA nutritional data into PostgreSQL."""
+    with get_db_connection() as conn:
+        with conn.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO inference_logs (image_path, predicted_class, confidence_score)
-                VALUES (%s, %s, %s);
+                INSERT INTO food_nutrition (food_name, calories, protein, fat, carbs)
+                VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT (food_name) DO NOTHING;
                 """,
-                (image_path, predicted_class, confidence)
+                (
+                    nutrition_data["food_name"],
+                    nutrition_data["calories"],
+                    nutrition_data["protein"],
+                    nutrition_data["fat"],
+                    nutrition_data["carbs"]
+                )
             )
-            conn.commit() # Save transaction
+            conn.commit()
 
 if __name__ == "__main__":
-    # Run database initialization setup when script executed directly
     initialize_db()
     print("PostgreSQL tables successfully initialized.")
